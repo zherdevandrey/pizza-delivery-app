@@ -1,6 +1,5 @@
-package com.example.elastic.model.impl;
+package com.example.elastic.query.service.model;
 
-import com.example.elastic.model.IndexModel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,16 +9,11 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class TelegramModel implements IndexModel {
-
+@AllArgsConstructor
+public class ElasticQueryServiceResponseModel {
     private String id;
-
     private Long userId;
-
     private String text;
-
     private LocalDateTime createdAt;
-
 }

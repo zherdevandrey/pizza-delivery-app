@@ -21,6 +21,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -53,7 +54,7 @@ public class KafkaAdminClient {
         kafkaConfigData
                 .getTopicNamesToCreate()
                 .forEach(topic -> {
-                    log.debug("Creating topic with name {} attempts #{}", topic, retryContext.getRetryCount());
+                    log.debug("Creating topic with name {} attempts #{}".toUpperCase(Locale.ROOT), topic, retryContext.getRetryCount());
                 });
         List<NewTopic> kafkaTopics = kafkaConfigData
                 .getTopicNamesToCreate()

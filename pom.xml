@@ -22,6 +22,7 @@
         <module>kafka</module>
         <module>common-config</module>
         <module>elastic</module>
+        <module>common-util</module>
     </modules>
 
     <properties>
@@ -38,7 +39,9 @@
         <kafka-model.version>0.0.1-SNAPSHOT</kafka-model.version>
         <kafka-admin.version>0.0.1-SNAPSHOT</kafka-admin.version>
         <elastic-model.version>0.0.1-SNAPSHOT</elastic-model.version>
+        <elastic-config.version>0.0.1-SNAPSHOT</elastic-config.version>
         <kafka-avro-serializer.version>5.3.0</kafka-avro-serializer.version>
+        <common-util.version>0.0.1-SNAPSHOT</common-util.version>
     </properties>
 
     <repositories>
@@ -55,30 +58,22 @@
                 <artifactId>spring-boot-starter-data-jpa</artifactId>
                 <version>${spring-boot.version}</version>
             </dependency>
-
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-web</artifactId>
-                <version>${spring-boot.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-web</artifactId>
-                <version>${spring-boot.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-test</artifactId>
                 <version>${spring-boot.version}</version>
                 <scope>test</scope>
             </dependency>
-
             <dependency>
                 <groupId>org.springframework.retry</groupId>
                 <artifactId>spring-retry</artifactId>
                 <version>${spring-retry.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+                <version>${spring-boot.version}</version>
             </dependency>
 
             <dependency>
@@ -165,6 +160,30 @@
                 <groupId>com.example</groupId>
                 <artifactId>elastic-model</artifactId>
                 <version>${elastic-model.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.example</groupId>
+                <artifactId>elastic-config</artifactId>
+                <version>${elastic-config.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.example</groupId>
+                <artifactId>elastic-index-client</artifactId>
+                <version>${elastic-config.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.example</groupId>
+                <artifactId>elastic-query-client</artifactId>
+                <version>${elastic-config.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.example</groupId>
+                <artifactId>common-util</artifactId>
+                <version>${common-util.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

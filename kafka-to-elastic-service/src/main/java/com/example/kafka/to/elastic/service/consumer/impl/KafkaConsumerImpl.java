@@ -1,13 +1,15 @@
 package com.example.kafka.to.elastic.service.consumer.impl;
 
 import com.example.app.config.data.KafkaConfigData;
-import com.example.elastic.model.impl.TelegramModel;
+import com.example.elastic.model.impl.TelegramIndexModel;
+import com.example.index.service.ElasticIndexClient;
 import com.example.kafka.admin.config.client.KafkaAdminClient;
 import com.example.kafka.avro.model.TwitterAvroModel;
 import com.example.kafka.to.elastic.service.consumer.KafkaConsumer;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.event.ApplicationStartedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.kafka.support.KafkaHeaders;
@@ -15,6 +17,9 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,32 +31,48 @@ public class KafkaConsumerImpl implements KafkaConsumer<Long, TwitterAvroModel> 
     private final KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;
     private final KafkaAdminClient kafkaAdminClient;
     private final KafkaConfigData kafkaConfigData;
+    private final ElasticIndexClient elasticIndexClient;
+
+    @EventListener
+    public void onAppStarted(ApplicationStartedEvent event) {
+        kafkaAdminClient.checkTopicsCreated();
+        log.info("Topics with name {} is ready for operations!", kafkaConfigData.getTopicNamesToCreate().toArray());
+        kafkaListenerEndpointRegistry.getListenerContainer("twitterTopicListener").start();
+    }
 
     @Override
-    @KafkaListener(id = "telegramTopicListener", topics = "telegram-topic")
+    @KafkaListener(id = "twitterTopicListener", topics = "telegram-topic")
     public void receive(@Payload List<TwitterAvroModel> messages,
                         @Header(KafkaHeaders.RECEIVED_MESSAGE_KEY) List<Integer> keys,
                         @Header(KafkaHeaders.RECEIVED_PARTITION_ID) List<Integer> partitions,
-                        @Header(KafkaHeaders.OFFSET) List<Long> offset) {
-
-        log.debug("# {} of messages, keys {}, partitions {}, offset {} thread {}",
+                        @Header(KafkaHeaders.OFFSET) List<Long> offsets) {
+        log.info("{} number of message received with keys {}, partitions {} and offsets {}, " +
+                        "sending it to elastic: Thread id {}",
                 messages.size(),
-                keys.size(),
+                keys.toString(),
                 partitions.toString(),
-                offset.toString(),
-                Thread.currentThread()
-                );
+                offsets.toString(),
+                Thread.currentThread().getId());
 
-        List<TelegramModel> telegramModels = messages
+        List<TelegramIndexModel> telegramIndexModels = messages
                 .stream()
                 .map(this::mapTelegramModel)
                 .collect(Collectors.toList());
 
+        elasticIndexClient.save(telegramIndexModels);
     }
 
-    private TelegramModel mapTelegramModel(TwitterAvroModel twitterAvroModel){
-        return TelegramModel
-                .builder()
-                .build();
+    private TelegramIndexModel mapTelegramModel(TwitterAvroModel twitterAvroModel){
+
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(twitterAvroModel.getCreatedAt()),
+                ZoneId.systemDefault());
+
+        return TelegramIndexModel
+                        .builder()
+                        .userId(twitterAvroModel.getUserId())
+                        .id(String.valueOf(twitterAvroModel.getId()))
+                        .text(twitterAvroModel.getText())
+                        .build();
+
     }
 }

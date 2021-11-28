@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import twitter4j.Status;
 
+import java.util.Locale;
+
 @Slf4j
 @Service
 @AllArgsConstructor
@@ -25,7 +27,8 @@ public class TelegramKafkaStatusListener {
                 .setCreatedAt(status.getCreatedAt().getTime())
                 .build();
         kafkaProducer.produce(kafkaConfigData.getTopicName(), status.getId(), model);
-        log.debug("Model {} pushed to topic {}", model, kafkaConfigData.getTopicName());
+        log.debug("PUBLISHED MODEL {} TO {}", model, kafkaConfigData.getTopicName().toUpperCase(Locale.ROOT));
+        log.debug("================================");
     }
 
 }

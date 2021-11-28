@@ -9,6 +9,8 @@ import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
+import java.util.Locale;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -24,13 +26,13 @@ public class KafkaProducerImpl implements KafkaProducer<Long, TwitterAvroModel> 
 
                     @Override
                     public void onFailure(Throwable ex) {
-                        log.error("Error while sending message {} to topic {}", message.toString(), topicName, ex);
+                        log.error("Error while sending message {} to topic {}".toUpperCase(Locale.ROOT), message.toString(), topicName, ex);
                     }
 
                     @Override
                     public void onSuccess(SendResult<Long, TwitterAvroModel> result) {
                         RecordMetadata metadata = result.getRecordMetadata();
-                        log.debug("Received new metadata. Topic: {}; Partition {}; Offset {}; Timestamp {}, at time {}",
+                        log.debug("Received new metadata. Topic: {}; Partition {}; Offset {}; Timestamp {}, at time {}".toUpperCase(Locale.ROOT),
                                 metadata.topic(),
                                 metadata.partition(),
                                 metadata.offset(),

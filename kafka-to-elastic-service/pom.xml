@@ -6,7 +6,7 @@
 
     <parent>
         <groupId>com.example</groupId>
-        <artifactId>pizza-delivery-app</artifactId>
+        <artifactId>telegram-app</artifactId>
         <version>0.0.1</version>
     </parent>
 

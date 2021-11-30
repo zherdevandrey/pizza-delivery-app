@@ -8,10 +8,10 @@
         <version>2.5.6</version>
     </parent>
 
-    <name>pizza-delivery-app</name>
+    <name>telegram-app</name>
 
     <groupId>com.example</groupId>
-    <artifactId>pizza-delivery-app</artifactId>
+    <artifactId>telegram-app</artifactId>
     <version>0.0.1</version>
     <packaging>pom</packaging>
 
@@ -28,6 +28,7 @@
     <properties>
         <java.version>11</java.version>
         <spring-boot.version>2.5.6</spring-boot.version>
+        <spring-cloud.version>3.0.4</spring-cloud.version>
         <lombok.version>1.18.16</lombok.version>
         <avro.version>1.10.0</avro.version>
         <spring-retry.version>1.3.1</spring-retry.version>
@@ -42,6 +43,7 @@
         <elastic-config.version>0.0.1-SNAPSHOT</elastic-config.version>
         <kafka-avro-serializer.version>5.3.0</kafka-avro-serializer.version>
         <common-util.version>0.0.1-SNAPSHOT</common-util.version>
+        <springdoc-openapi-ui.version>1.5.0</springdoc-openapi-ui.version>
     </properties>
 
     <repositories>
@@ -74,6 +76,18 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
                 <version>${spring-boot.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-loadbalancer</artifactId>
+                <version>${spring-cloud.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-bootstrap</artifactId>
+                <version>${spring-cloud.version}</version>
             </dependency>
 
             <dependency>
@@ -117,8 +131,6 @@
                 <artifactId>twitter4j-stream</artifactId>
                 <version>${twitter4j.version}</version>
             </dependency>
-
-            <!--local packages-->
 
             <dependency>
                 <groupId>com.example</groupId>
@@ -184,6 +196,12 @@
                 <groupId>com.example</groupId>
                 <artifactId>common-util</artifactId>
                 <version>${common-util.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-ui</artifactId>
+                <version>${springdoc-openapi-ui.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

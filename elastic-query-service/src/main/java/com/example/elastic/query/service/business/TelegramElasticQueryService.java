@@ -4,6 +4,7 @@ import com.example.app.config.data.ElasticQueryConfigData;
 import com.example.elastic.model.impl.TelegramIndexModel;
 import com.example.elastic.query.client.ElasticQueryClient;
 import com.example.elastic.query.service.model.ElasticQueryServiceResponseModel;
+import com.example.elastic.query.service.model.assembler.ElasticQueryServiceResponseModelAssembler;
 import com.example.elastic.query.service.transformer.ElasticResponseModelTransformer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TelegramElasticQueryService implements ElasticQueryService {
 
-    private final ElasticResponseModelTransformer transformer;
+    private final ElasticQueryServiceResponseModelAssembler assembler;
     private final ElasticQueryClient<TelegramIndexModel> elasticQueryClient;
     private final ElasticQueryConfigData elasticQueryConfigData;
 
@@ -23,7 +24,7 @@ public class TelegramElasticQueryService implements ElasticQueryService {
     @Override
     public ElasticQueryServiceResponseModel getDocumentById(String id) {
         TelegramIndexModel telegramIndexModel = elasticQueryClient.getIndexModelById(id);
-        return transformer.transform(telegramIndexModel);
+        return assembler.toModel(telegramIndexModel);
     }
 
     @Override
@@ -31,7 +32,7 @@ public class TelegramElasticQueryService implements ElasticQueryService {
         return elasticQueryClient
                 .getIndexModelByText(text)
                 .stream()
-                .map(transformer::transform)
+                .map(assembler::toModel)
                 .collect(Collectors.toList());
     }
 
@@ -40,7 +41,7 @@ public class TelegramElasticQueryService implements ElasticQueryService {
         return elasticQueryClient
                 .getAllIndexModels()
                 .stream()
-                .map(transformer::transform)
+                .map(assembler::toModel)
                 .collect(Collectors.toList());
     }
 

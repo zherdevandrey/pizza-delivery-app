@@ -2,6 +2,7 @@ package com.example.elastic.query.web.client.service;
 
 import com.example.app.config.data.ElasticQueryWebClientConfigData;
 import com.example.elastic.query.web.client.exception.ElasticQueryWebClientException;
+import com.example.elastic.query.web.client.model.ElasticQueryWebClientAnalyticsResponseModel;
 import com.example.elastic.query.web.client.model.ElasticQueryWebClientRequestModel;
 import com.example.elastic.query.web.client.model.ElasticQueryWebClientResponseModel;
 import lombok.RequiredArgsConstructor;
@@ -30,13 +31,12 @@ public class TelegramElasticQueryWebClient implements ElasticQueryWebClient {
 
 
     @Override
-    public List<ElasticQueryWebClientResponseModel> getDataByText(ElasticQueryWebClientRequestModel requestModel) {
+    public ElasticQueryWebClientAnalyticsResponseModel getDataByText(ElasticQueryWebClientRequestModel requestModel) {
         log.info("Querying by text {}", requestModel.getText());
-        List<ElasticQueryWebClientResponseModel> result = getWebClient(requestModel)
-                .bodyToFlux(ElasticQueryWebClientResponseModel.class)
-                .collectList()
+        ElasticQueryWebClientAnalyticsResponseModel result = getWebClient(requestModel)
+                .bodyToMono(ElasticQueryWebClientAnalyticsResponseModel.class)
                 .block();
-        log.info("Retrieved #{} records", result.size());
+        log.info("Retrieved #{} records", result.getQueryResponseModels().size());
         return result;
     }
 

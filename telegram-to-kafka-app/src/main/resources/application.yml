@@ -28,6 +28,7 @@ kafka-config:
   topic-name: telegram-topic
   topic-names-to-create:
     - telegram-topic
+    - twitter-analytics-topic
   num-of-partitions: 3
   replication-factor: 3
 

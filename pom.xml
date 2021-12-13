@@ -23,6 +23,7 @@
         <module>common-config</module>
         <module>elastic</module>
         <module>common-util</module>
+        <module>kafka-streaming-service</module>
     </modules>
 
     <properties>
@@ -44,6 +45,7 @@
         <kafka-avro-serializer.version>5.3.0</kafka-avro-serializer.version>
         <common-util.version>0.0.1-SNAPSHOT</common-util.version>
         <springdoc-openapi-ui.version>1.5.0</springdoc-openapi-ui.version>
+        <kafka-streams-avro-serde.version>5.5.1</kafka-streams-avro-serde.version>
     </properties>
 
     <repositories>
@@ -203,6 +205,13 @@
                 <artifactId>springdoc-openapi-ui</artifactId>
                 <version>${springdoc-openapi-ui.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>io.confluent</groupId>
+                <artifactId>kafka-streams-avro-serde</artifactId>
+                <version>${kafka-streams-avro-serde.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

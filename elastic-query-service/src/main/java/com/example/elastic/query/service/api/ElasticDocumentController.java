@@ -1,6 +1,7 @@
 package com.example.elastic.query.service.api;
 
 import com.example.elastic.query.service.business.ElasticQueryService;
+import com.example.elastic.query.service.model.ElasticQueryServiceAnalyticsResponseModel;
 import com.example.elastic.query.service.model.ElasticQueryServiceRequestModel;
 import com.example.elastic.query.service.model.ElasticQueryServiceResponseModel;
 import io.swagger.v3.oas.annotations.Operation;
@@ -80,10 +81,10 @@ public class ElasticDocumentController {
     })
     @PostMapping("/get-document-by-text")
     public @ResponseBody
-    ResponseEntity<List<ElasticQueryServiceResponseModel>>
+    ResponseEntity<ElasticQueryServiceAnalyticsResponseModel>
     getDocumentByText(@RequestBody @Valid ElasticQueryServiceRequestModel request) {
-        List<ElasticQueryServiceResponseModel> response = elasticQueryService.getDocumentsByText(request.getText());
-        log.info("Port {}. Elasticsearch returned {} of documents", response.size());
+        ElasticQueryServiceAnalyticsResponseModel response = elasticQueryService.getDocumentsByText(request.getText());
+        log.info("Elasticsearch returned {} of documents", response.getQueryResponseModels().size());
         return ResponseEntity.ok(response);
     }
 

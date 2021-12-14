@@ -1,6 +1,15 @@
 server:
   port: 8001
 
+spring:
+  application:
+    name: telegram-to-kafka-service
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+
 telegram-to-kafka-service:
   telegram-keywords:
     - Java

@@ -1,10 +1,19 @@
-kafka-streams-service:
-  custom-audience: kafka-streams-service
+spring:
+  application:
+    name: kafka-streams-service
 
 server:
   port: 8187
   servlet:
     context-path: /kafka-streams-service
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
+
+kafka-streams-service:
+  custom-audience: kafka-streams-service
 
 springdoc:
   api-docs:

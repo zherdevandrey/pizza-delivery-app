@@ -9,7 +9,6 @@
         <version>0.0.1</version>
     </parent>
 
-    <groupId>com.example</groupId>
     <artifactId>elastic-query-web-client</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>elastic-query-web-client</name>

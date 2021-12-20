@@ -4,7 +4,6 @@ import com.example.app.config.data.ElasticQueryWebClientConfigData;
 import com.example.elastic.query.web.client.exception.ElasticQueryWebClientException;
 import com.example.elastic.query.web.client.model.ElasticQueryWebClientAnalyticsResponseModel;
 import com.example.elastic.query.web.client.model.ElasticQueryWebClientRequestModel;
-import com.example.elastic.query.web.client.model.ElasticQueryWebClientResponseModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -17,8 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 @Slf4j
 @Service
@@ -37,6 +34,7 @@ public class TelegramElasticQueryWebClient implements ElasticQueryWebClient {
                 .bodyToMono(ElasticQueryWebClientAnalyticsResponseModel.class)
                 .block();
         log.info("Retrieved #{} records", result.getQueryResponseModels().size());
+        log.info("Records: {}", result);
         return result;
     }
 

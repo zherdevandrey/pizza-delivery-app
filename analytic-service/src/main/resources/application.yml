@@ -5,7 +5,7 @@ server:
 
 spring:
   application:
-    name: analytic-service
+    name: analytics-service
   jpa:
     open-in-view: false
     show-sql: true
@@ -27,7 +27,7 @@ spring:
 eureka:
   client:
     serviceUrl:
-      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
+      defaultZone: http://localhost:8761/eureka
 
 kafka-config:
   bootstrap-servers: localhost:19092, localhost:29092, localhost:39092
@@ -63,5 +63,17 @@ retry-config:
   multiplier: 2.0
   max-attempts: 3
   sleep-time-ms: 2000
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure.include: health, prometheus
+      path-mapping.prometheus: metrics
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      cache.time-to-live: 1ms
 
 

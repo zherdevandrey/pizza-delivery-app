@@ -1,6 +1,5 @@
 package com.example.telegram.to.kafka.app;
 
-import com.example.kafka.admin.config.client.KafkaAdminClient;
 import com.example.telegram.to.kafka.app.init.KafkaInitializer;
 import com.example.telegram.to.kafka.app.runner.StreamRunner;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +21,6 @@ public class TelegramToKafkaAppApplication implements ApplicationListener<Contex
 
     private final StreamRunner streamRunner;
     private final KafkaInitializer kafkaInitializer;
-    private final KafkaAdminClient kafkaAdminClient;
 
     public static void main(String[] args) {
         SpringApplication.run(TelegramToKafkaAppApplication.class, args);

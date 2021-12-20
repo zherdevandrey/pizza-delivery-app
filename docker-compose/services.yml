@@ -1,0 +1,238 @@
+version: '3.3'
+services:
+  discovery-service-1:
+    image: ${GROUP_ID}/discovery.service:${SERVICE_VERSION:-latest}
+    ports:
+      - "5014:5014"
+      - "8761:8761"
+    user: root
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://discovery-service-1:8761" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - "./docker-logs:/workspace/discovery-service/logs"
+      - "./logstash-logs:/workspace/gateway-service/logstash/logs"
+    environment:
+      - "JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5014 -Xms128m -Xmx256m"
+      - "LOGGING_LEVEL_ROOT=info"
+      - "SERVER_PORT=8761"
+      - "SPRING_PROFILES_ACTIVE=peer1"
+      - "EUREKA_INSTANCE_HOSTNAME=discovery-service-1"
+    networks:
+      - ${GLOBAL_NETWORK:-services}
+  discovery-service-2:
+    image: ${GROUP_ID}/discovery.service:${SERVICE_VERSION:-latest}
+    ports:
+      - "5015:5015"
+      - "8762:8762"
+    user: root
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://discovery-service-2:8762" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - "./docker-logs:/workspace/discovery-service/logs"
+      - "./logstash-logs:/workspace/gateway-service/logstash/logs"
+    environment:
+      - "JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5015 -Xms128m -Xmx256m"
+      - "LOGGING_LEVEL_ROOT=info"
+      - "SERVER_PORT=8762"
+      - "SPRING_PROFILES_ACTIVE=peer2"
+      - "EUREKA_INSTANCE_HOSTNAME=discovery-service-2"
+    networks:
+      - ${GLOBAL_NETWORK:-services}
+  telegram-to-kafka-service:
+    image: ${GROUP_ID}/telegram.to.kafka.service:${SERVICE_VERSION:-latest}
+    ports:
+      - "5005:5005"
+    volumes:
+      - "./docker-logs:/workspace/telegram-to-kafka-service/logs"
+      - "./logstash-logs:/workspace/gateway-service/logstash/logs"
+      - "./check-kafka-topics-created.sh:/usr/local/bin/check-kafka-topics-created.sh"
+    user: root
+    depends_on:
+      - discovery-service-1
+      - discovery-service-2
+      - kafka-broker-1
+      - kafka-broker-2
+      - kafka-broker-3
+      - schema-registry
+    restart: on-failure
+    environment:
+      - "JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Xms128m -Xmx256m"
+      - "LOGGING_LEVEL_EXAMPLE=error"
+      - "LOGGING_LEVEL_ROOT=error"
+      - "KAFKA-CONFIG_TOPIC-NAME=telegram-topic"
+      - "KAFKA-CONFIG_TOPIC-NAMES-TO-CREATE_0=telegram-topic"
+      - "KAFKA-CONFIG_TOPIC-NAMES-TO-CREATE_1=telegram-analytics-topic"
+      - "KAFKA-CONFIG_BOOTSTRAP-SERVERS=kafka-broker-1:9092, kafka-broker-2:9092, kafka-broker-3:9092"
+      - "KAFKA-CONFIG_SCHEMA-REGISTRY-URL=http://schema-registry:8081"
+      - "EUREKA_CLIENT_SERVICE-URL_DEFAULT-ZONE=http://discovery-service-2:8762/eureka/,http://discovery-service-1:8761/eureka/"
+    networks:
+      - ${GLOBAL_NETWORK:-services}
+  kafka-to-elastic-service:
+    image: ${GROUP_ID}/kafka.to.elastic.service:${SERVICE_VERSION:-latest}
+    ports:
+      - "5006:5006"
+    volumes:
+      - "./docker-logs:/workspace/kafka-to-elastic-service/logs"
+      - "./logstash-logs:/workspace/gateway-service/logstash/logs"
+    user: root
+    restart: on-failure
+    depends_on:
+      - discovery-service-1
+      - discovery-service-2
+      - telegram-to-kafka-service
+      - kafka-broker-1
+      - kafka-broker-2
+      - kafka-broker-3
+      - schema-registry
+      - elastic-1
+      - elastic-2
+      - elastic-3
+    environment:
+      - "JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5006 -Xms128m -Xmx256m"
+      - "LOGGING_LEVEL_COM_EXAMPLE=error"
+      - "LOGGING_LEVEL_ROOT=error"
+      - "KAFKA-CONFIG_TOPIC-NAME=telegram-topic"
+      - "KAFKA-CONFIG_BOOTSTRAP-SERVERS=kafka-broker-1:9092, kafka-broker-2:9092, kafka-broker-3:9092"
+      - "KAFKA-CONFIG_SCHEMA-REGISTRY-URL=http://schema-registry:8081"
+      - "ELASTIC-CONFIG_INDEX-NAME=telegram-index"
+      - "ELASTIC-CONFIG_CONNECTION-URL=http://elastic-1:9200"
+      - "EUREKA_CLIENT_SERVICE-URL_DEFAULT-ZONE=http://discovery-service-2:8762/eureka/,http://discovery-service-1:8761/eureka/"
+    networks:
+      - ${GLOBAL_NETWORK:-services}
+  elastic-query-service-1:
+    image: ${GROUP_ID}/elastic.query.service:${SERVICE_VERSION:-latest}
+    ports:
+      - "5008:5008"
+      - "8183:8183"
+    volumes:
+      - "./docker-logs:/workspace/elastic-query-service/logs"
+      - "./logstash-logs:/workspace/gateway-service/logstash/logs"
+      - "./check-elastic-server-started.sh:/usr/local/bin/check-elastic-server-started.sh"
+    user: root
+    depends_on:
+      - discovery-service-1
+      - discovery-service-2
+      - elastic-1
+      - elastic-3
+    environment:
+      - "JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5008 -Xms128m -Xmx256m"
+      - "LOGGING_LEVEL_COM_EXAMPLE=info"
+      - "LOGGING_LEVEL_ROOT=info"
+      - "ELASTIC-CONFIG_INDEX-NAME=telegram-index"
+      - "ELASTIC-CONFIG_CONNECTION-URL=http://elastic-1:9200"
+      - "SERVER_PORT=8183"
+      - "ELASTIC-QUERY-SERVICE_QUERY-FROM-KAFKA-STATE-STORE_URI=http://kafka-streams-service/kafka-streams-service/get-word-count-by-word/{word}"
+      - "ELASTIC-QUERY-SERVICE_QUERY-FROM-ANALYTICS-DATABASE_URI=http://analytics-service/analytics-service/get-word-count-by-word/{word}"
+      - "ELASTIC-QUERY-SERVICE_WEBCLIENT_QUERY-TYPE=ANALYTICS_DATABASE"
+      - "EUREKA_CLIENT_SERVICE-URL_DEFAULT-ZONE=http://discovery-service-2:8762/eureka/,http://discovery-service-1:8761/eureka/"
+    networks:
+      - ${GLOBAL_NETWORK:-services}
+  elastic-query-service-2:
+    image: ${GROUP_ID}/elastic.query.service:${SERVICE_VERSION:-latest}
+    ports:
+      - "5009:5009"
+      - "8186:8186"
+    volumes:
+      - "./docker-logs:/workspace/elastic-query-service/logs"
+      - "./logstash-logs:/workspace/gateway-service/logstash/logs"
+      - "./check-elastic-server-started.sh:/usr/local/bin/check-elastic-server-started.sh"
+    user: root
+    entrypoint: [ "check-elastic-server-started.sh" ]
+    depends_on:
+      - discovery-service-1
+      - discovery-service-2
+      - elastic-1
+      - elastic-2
+      - elastic-3
+    environment:
+      - "JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5009 -Xms128m -Xmx256m"
+      - "LOGGING_LEVEL_COM_EXAMPLE=info"
+      - "LOGGING_LEVEL_ROOT=info"
+      - "ELASTIC-CONFIG_INDEX-NAME=telegram-index"
+      - "ELASTIC-CONFIG_CONNECTION-URL=http://elastic-1:9200"
+      - "SERVER_PORT=8186"
+      - "ELASTIC-QUERY-SERVICE_QUERY-FROM-KAFKA-STATE-STORE_URI=http://kafka-streams-service/kafka-streams-service/get-word-count-by-word/{word}"
+      - "ELASTIC-QUERY-SERVICE_QUERY-FROM-ANALYTICS-DATABASE_URI=http://analytics-service/analytics-service/get-word-count-by-word/{word}"
+      - "ELASTIC-QUERY-SERVICE_WEBCLIENT_QUERY-TYPE=ANALYTICS_DATABASE"
+      - "EUREKA_CLIENT_SERVICE-URL_DEFAULT-ZONE=http://discovery-service-2:8762/eureka/,http://discovery-service-1:8761/eureka/"
+    networks:
+      - ${GLOBAL_NETWORK:-services}
+  elastic-query-web-client:
+    image: ${GROUP_ID}/elastic.query.web.client:${SERVICE_VERSION:-latest}
+    ports:
+      - "5010:5010"
+      - "8184:8184"
+    volumes:
+      - "./docker-logs:/workspace/elastic-query-web-client/logs"
+      - "./logstash-logs:/workspace/gateway-service/logstash/logs"
+    user: root
+    depends_on:
+      - discovery-service-1
+      - discovery-service-2
+    environment:
+      - "JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5010 -Xms128m -Xmx256m"
+      - "LOGGING_LEVEL_COM_EXAMPLE=info"
+      - "LOGGING_LEVEL_ROOT=info"
+      - "SERVER_PORT=8184"
+      - "SERVER_SERVLET_CONTEXT-PATH=/elastic-query-web-client"
+      - "ELASTIC-QUERY-WEB-CLIENT_WEB-CLIENT_BASE-URL=http://elastic-query-service/elastic-query-service/documents"
+      - "ELASTIC-QUERY-WEB-CLIENT_WEB-CLIENT_INSTANCES_0_ID=elastic-query-service-1"
+      - "ELASTIC-QUERY-WEB-CLIENT_WEB-CLIENT_INSTANCES_0_HOST=elastic-query-service-1"
+      - "ELASTIC-QUERY-WEB-CLIENT_WEB-CLIENT_INSTANCES_0_PORT=8183"
+      - "ELASTIC-QUERY-WEB-CLIENT_WEB-CLIENT_INSTANCES_1_ID=elastic-query-service-2"
+      - "ELASTIC-QUERY-WEB-CLIENT_WEB-CLIENT_INSTANCES_1_HOST=elastic-query-service-2"
+      - "ELASTIC-QUERY-WEB-CLIENT_WEB-CLIENT_INSTANCES_1_PORT=8186"
+      - "EUREKA_CLIENT_SERVICE-URL_DEFAULT-ZONE=http://discovery-service-2:8762/eureka/,http://discovery-service-1:8761/eureka/"
+    networks:
+      - ${GLOBAL_NETWORK:-services}
+  kafka-streams-service:
+    image: ${GROUP_ID}/kafka.streams.service:${SERVICE_VERSION:-latest}
+    ports:
+      - "5012:5012"
+      - "8187:8187"
+    volumes:
+      - "./docker-logs:/workspace/kafka-streams-service/logs"
+      - "./logstash-logs:/workspace/gateway-service/logstash/logs"
+    user: root
+    depends_on:
+      - discovery-service-1
+      - discovery-service-2
+    environment:
+      - "JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5012 -Xms128m -Xmx256m"
+      - "LOGGING_LEVEL_COM_EXAMPLE=error"
+      - "LOGGING_LEVEL_ROOT=error"
+      - "SERVER_PORT=8187"
+      - "KAFKA-CONFIG_BOOTSTRAP-SERVERS=kafka-broker-1:9092, kafka-broker-2:9092, kafka-broker-3:9092"
+      - "KAFKA-CONFIG_SCHEMA-REGISTRY-URL=http://schema-registry:8081"
+      - "EUREKA_CLIENT_SERVICE-URL_DEFAULT-ZONE=http://discovery-service-2:8762/eureka/,http://discovery-service-1:8761/eureka/"
+    networks:
+      - ${GLOBAL_NETWORK:-services}
+  analytics-service:
+    image: ${GROUP_ID}/analytic.service:${SERVICE_VERSION:-latest}
+    ports:
+      - "5013:5013"
+      - "8188:8188"
+    volumes:
+      - "./docker-logs:/workspace/analytics-service/logs"
+      - "./logstash-logs:/workspace/gateway-service/logstash/logs"
+    user: root
+    depends_on:
+      - discovery-service-1
+      - discovery-service-2
+    environment:
+      - "JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5013 -Xms128m -Xmx256m"
+      - "LOGGING_LEVEL_COM_EXAMPLE=info"
+      - "LOGGING_LEVEL_ROOT=info"
+      - "SERVER_PORT=8188"
+      - "SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/postgres"
+      - "KAFKA-CONFIG_BOOTSTRAP-SERVERS=kafka-broker-1:9092, kafka-broker-2:9092, kafka-broker-3:9092"
+      - "KAFKA-CONFIG_SCHEMA-REGISTRY-URL=http://schema-registry:8081"
+      - "EUREKA_CLIENT_SERVICE-URL_DEFAULT-ZONE=http://discovery-service-2:8762/eureka/,http://discovery-service-1:8761/eureka/"
+    networks:
+      - ${GLOBAL_NETWORK:-services}

@@ -2,10 +2,16 @@ version: '3.3'
 services:
   elastic-1:
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION:-latest}
+    restart: on-failure
     hostname: elastic-1
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://elastic-1:9200" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     environment:
       - node.name=elastic-1
-      - cluster.name=es-twitter-cluster
+      - cluster.name=es-telegram-cluster
       - discovery.seed_hosts=elastic-2,elastic-3
       - cluster.initial_master_nodes=elastic-1,elastic-2,elastic-3
       - bootstrap.memory_lock=true
@@ -22,9 +28,10 @@ services:
       - ${GLOBAL_NETWORK:-elastic}
   elastic-2:
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION}
+    restart: on-failure
     environment:
       - node.name=elastic-2
-      - cluster.name=es-twitter-cluster
+      - cluster.name=es-telegram-cluster
       - discovery.seed_hosts=elastic-1,elastic-3
       - cluster.initial_master_nodes=elastic-1,elastic-2,elastic-3
       - bootstrap.memory_lock=true
@@ -39,9 +46,10 @@ services:
       - ${GLOBAL_NETWORK:-elastic}
   elastic-3:
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION}
+    restart: on-failure
     environment:
       - node.name=elastic-3
-      - cluster.name=es-twitter-cluster
+      - cluster.name=es-telegram-cluster
       - discovery.seed_hosts=elastic-1,elastic-2
       - cluster.initial_master_nodes=elastic-1,elastic-2,elastic-3
       - bootstrap.memory_lock=true

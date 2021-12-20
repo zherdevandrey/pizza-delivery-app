@@ -1,7 +1,7 @@
 package com.example.analytic.consumer;
 
-import com.example.analytic.data.entity.AnalyticEntity;
 import com.example.analytic.data.AnalyticDataRepository;
+import com.example.analytic.data.entity.AnalyticEntity;
 import com.example.analytic.mapper.AnalyticDataMapper;
 import com.example.app.config.data.KafkaConfigData;
 import com.example.kafka.admin.config.client.KafkaAdminClient;
@@ -33,7 +33,7 @@ public class KafkaConsumerImpl implements KafkaConsumer<String, TwitterAnalytics
     @EventListener
     public void onStarted(ApplicationStartedEvent event){
         adminClient.checkTopicsCreated();
-        log.debug("Required topics created: {}", kafkaConfigData.getTopicNamesToCreate());
+        log.info("Required topics created: {}", kafkaConfigData.getTopicNamesToCreate());
         kafkaListenerEndpointRegistry.getListenerContainer("kafkaAnalyticListener").start();
     }
 

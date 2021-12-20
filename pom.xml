@@ -26,6 +26,7 @@
         <module>kafka-streaming-service</module>
         <module>analytic-service</module>
         <module>discovery-service</module>
+        <module>gateway-service</module>
     </modules>
 
     <properties>
@@ -49,6 +50,9 @@
         <common-util.version>0.0.1-SNAPSHOT</common-util.version>
         <springdoc-openapi-ui.version>1.5.12</springdoc-openapi-ui.version>
         <kafka-streams-avro-serde.version>5.5.1</kafka-streams-avro-serde.version>
+        <spring-cloud-starter-circuitbreaker-reactor-resilience4j.version>1.0.4.RELEASE
+        </spring-cloud-starter-circuitbreaker-reactor-resilience4j.version>
+        <micrometer-registry-prometheus.version>1.5.2</micrometer-registry-prometheus.version>
     </properties>
 
     <repositories>
@@ -60,6 +64,18 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-gateway</artifactId>
+                <version>${spring-cloud.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-circuitbreaker-reactor-resilience4j</artifactId>
+                <version>${spring-cloud-starter-circuitbreaker-reactor-resilience4j.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -210,6 +226,11 @@
                 <groupId>io.confluent</groupId>
                 <artifactId>kafka-streams-avro-serde</artifactId>
                 <version>${kafka-streams-avro-serde.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-registry-prometheus</artifactId>
+                <version>${micrometer-registry-prometheus.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

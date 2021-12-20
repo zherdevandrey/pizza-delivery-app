@@ -5,6 +5,7 @@ services:
     hostname: zookeeper
     ports:
       - "2181:2181"
+    restart: on-failure
     environment:
       ZOOKEEPER_SERVER_ID: 1
       ZOOKEEPER_CLIENT_PORT: 2181
@@ -24,6 +25,13 @@ services:
       - kafka-broker-3
     ports:
       - "8081:8081"
+    user: root
+    restart: on-failure
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://schema-registry:8081" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
@@ -38,6 +46,7 @@ services:
       - "19092:19092"
     depends_on:
       - zookeeper
+    restart: on-failure
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -54,6 +63,7 @@ services:
       - "29092:29092"
     depends_on:
       - zookeeper
+    restart: on-failure
     environment:
       KAFKA_BROKER_ID: 2
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -70,6 +80,7 @@ services:
       - "39092:39092"
     depends_on:
       - zookeeper
+    restart: on-failure
     environment:
       KAFKA_BROKER_ID: 3
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -79,7 +90,3 @@ services:
       KAFKA_COMPRESSION_TYPE: producer
     networks:
       - ${GLOBAL_NETWORK:-kafka}
-
-networks:
-  application:
-    driver: bridge

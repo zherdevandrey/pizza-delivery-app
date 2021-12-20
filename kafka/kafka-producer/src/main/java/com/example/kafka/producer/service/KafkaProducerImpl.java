@@ -32,7 +32,7 @@ public class KafkaProducerImpl implements KafkaProducer<Long, TwitterAvroModel> 
                     @Override
                     public void onSuccess(SendResult<Long, TwitterAvroModel> result) {
                         RecordMetadata metadata = result.getRecordMetadata();
-                        log.debug("Received new metadata. Topic: {}; Partition {}; Offset {}; Timestamp {}, at time {}".toUpperCase(Locale.ROOT),
+                        log.info("Received new metadata. Topic: {}; Partition {}; Offset {}; Timestamp {}, at time {}".toUpperCase(Locale.ROOT),
                                 metadata.topic(),
                                 metadata.partition(),
                                 metadata.offset(),

@@ -27,8 +27,8 @@ public class TelegramKafkaStatusListener {
                 .setCreatedAt(status.getCreatedAt().getTime())
                 .build();
         kafkaProducer.produce(kafkaConfigData.getTopicName(), status.getId(), model);
-        log.debug("PUBLISHED MODEL {} TO {}", model, kafkaConfigData.getTopicName().toUpperCase(Locale.ROOT));
-        log.debug("================================");
+        log.info("PUBLISHED MODEL {} TO {}", model, kafkaConfigData.getTopicName().toUpperCase(Locale.ROOT));
+        log.info("================================");
     }
 
 }

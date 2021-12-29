@@ -6,6 +6,7 @@ import com.example.elastic.query.web.client.model.ElasticQueryWebClientAnalytics
 import com.example.elastic.query.web.client.model.ElasticQueryWebClientRequestModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -16,6 +17,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+
+import static com.example.Constants.CORRELATION_ID_HEADER;
+import static com.example.Constants.CORRELATION_ID_KEY;
 
 @Slf4j
 @Service
@@ -43,6 +47,7 @@ public class TelegramElasticQueryWebClient implements ElasticQueryWebClient {
                 .build()
                 .method(HttpMethod.valueOf(elasticQueryWebClientConfigData.getQueryByText().getMethod()))
                 .uri(elasticQueryWebClientConfigData.getQueryByText().getUri())
+                .header(CORRELATION_ID_HEADER, MDC.get(CORRELATION_ID_KEY))
                 .accept(MediaType.valueOf(elasticQueryWebClientConfigData.getQueryByText().getAccept()))
                 .body(BodyInserters.fromPublisher(Mono.just(requestModel), createParameterizedTypeReference()))
                 .retrieve()

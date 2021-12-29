@@ -27,6 +27,7 @@
         <module>analytic-service</module>
         <module>discovery-service</module>
         <module>gateway-service</module>
+        <module>mdc-interceptor</module>
     </modules>
 
     <properties>
@@ -53,6 +54,8 @@
         <spring-cloud-starter-circuitbreaker-reactor-resilience4j.version>1.0.4.RELEASE
         </spring-cloud-starter-circuitbreaker-reactor-resilience4j.version>
         <micrometer-registry-prometheus.version>1.5.2</micrometer-registry-prometheus.version>
+        <logstash-logback-encoder.version>6.5</logstash-logback-encoder.version>
+        <mdc-interceptor.version>0.0.1-SNAPSHOT</mdc-interceptor.version>
     </properties>
 
     <repositories>
@@ -61,6 +64,13 @@
             <url>https://packages.confluent.io/maven/</url>
         </repository>
     </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+        </dependency>
+    </dependencies>
 
     <dependencyManagement>
         <dependencies>
@@ -231,6 +241,16 @@
                 <groupId>io.micrometer</groupId>
                 <artifactId>micrometer-registry-prometheus</artifactId>
                 <version>${micrometer-registry-prometheus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.logstash.logback</groupId>
+                <artifactId>logstash-logback-encoder</artifactId>
+                <version>${logstash-logback-encoder.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.example</groupId>
+                <artifactId>mdc-interceptor</artifactId>
+                <version>${mdc-interceptor.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -16,11 +16,11 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class TelegramElasticRepositoryQueryClient implements ElasticQueryClient<TelegramIndexModel> {
 
-    private final TelegramElasticsearchQueryRepository twitterElasticsearchQueryRepository;
+    private final TelegramElasticsearchQueryRepository telegramElasticsearchQueryRepository;
 
     @Override
     public TelegramIndexModel getIndexModelById(String id) {
-        Optional<TelegramIndexModel> searchResult = twitterElasticsearchQueryRepository.findById(id);
+        Optional<TelegramIndexModel> searchResult = telegramElasticsearchQueryRepository.findById(id);
         log.info("Document with id {} retrieved successfully",
                 searchResult.orElseThrow(() ->
                         new ElasticQueryClientException("No document found at elasticsearch with id " + id)).getId());
@@ -29,7 +29,7 @@ public class TelegramElasticRepositoryQueryClient implements ElasticQueryClient<
 
     @Override
     public List<TelegramIndexModel> getIndexModelByText(String text) {
-        List<TelegramIndexModel> searchResult = twitterElasticsearchQueryRepository.findByText(text);
+        List<TelegramIndexModel> searchResult = telegramElasticsearchQueryRepository.findByText(text);
         log.info("{} of documents with text {} retrieved successfully", searchResult.size(), text);
         return searchResult;
     }
@@ -37,7 +37,7 @@ public class TelegramElasticRepositoryQueryClient implements ElasticQueryClient<
     @Override
     public List<TelegramIndexModel> getAllIndexModels() {
         List<TelegramIndexModel> searchResult =
-                CollectionsUtil.getInstance().getListFromIterable(twitterElasticsearchQueryRepository.findAll());
+                CollectionsUtil.getInstance().getListFromIterable(telegramElasticsearchQueryRepository.findAll());
         log.info("{} number of documents retrieved successfully", searchResult.size());
         return searchResult;
     }

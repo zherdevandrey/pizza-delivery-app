@@ -25,13 +25,15 @@ public class AnalyticController {
         return "test";
     }
 
-
     @GetMapping("/get-word-count-by-word/{word}")
     public ResponseEntity<AnalyticsResponseModel> getAnalyticData(@PathVariable("word") String word){
+        log.info("Request word count for {}", word);
         Optional<AnalyticsResponseModel> analyticData = analyticService.getAnalyticData(word);
-        return analyticData
+        ResponseEntity<AnalyticsResponseModel> response = analyticData
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.ok(AnalyticsResponseModel.builder().build()));
+        log.info("Response word count for {}", response.getBody());
+        return response;
     }
 
 }

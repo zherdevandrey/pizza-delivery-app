@@ -143,7 +143,6 @@ services:
       - "./logstash-logs:/workspace/gateway-service/logstash/logs"
       - "./check-elastic-server-started.sh:/usr/local/bin/check-elastic-server-started.sh"
     user: root
-    entrypoint: [ "check-elastic-server-started.sh" ]
     depends_on:
       - discovery-service-1
       - discovery-service-2

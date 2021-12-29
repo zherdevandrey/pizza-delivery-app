@@ -1,10 +1,33 @@
-{"namespace": "com.example.kafka.avro.model",
+{
+  "namespace": "com.example.kafka.avro.model",
   "type": "record",
-  "name": "TwitterAvroModel",
+  "name": "TelegramAvroModel",
   "fields": [
-    {"name": "userId", "type": "long"},
-    {"name": "id", "type": "long"},
-    {"name": "text", "type": ["null", "string"]},
-    {"name": "createdAt", "type": ["null", "long"], "logicalType": ["null", "date"]}
+    {
+      "name": "userId",
+      "type": "long"
+    },
+    {
+      "name": "id",
+      "type": "long"
+    },
+    {
+      "name": "text",
+      "type": [
+        "null",
+        "string"
+      ]
+    },
+    {
+      "name": "createdAt",
+      "type": [
+        "null",
+        "long"
+      ],
+      "logicalType": [
+        "null",
+        "date"
+      ]
+    }
   ]
 }

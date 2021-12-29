@@ -28,7 +28,7 @@ public class MockKafkaStreamRunner implements StreamRunner {
 
     private final TelegramToKafkaServiceConfigData telegramToKafkaServiceConfigData;
 
-    private final TelegramKafkaStatusListener twitterKafkaStatusListener;
+    private static final String TELEGRAM_STATUS_DATE_FORMAT = "EEE MMM dd HH:mm:ss zzz yyyy";
 
     private static final Random RANDOM = new Random();
 
@@ -63,13 +63,12 @@ public class MockKafkaStreamRunner implements StreamRunner {
             "\"text\":\"{2}\"," +
             "\"user\":{\"id\":\"{3}\"}" +
             "}";
-
-    private static final String TWITTER_STATUS_DATE_FORMAT = "EEE MMM dd HH:mm:ss zzz yyyy";
+    private final TelegramKafkaStatusListener telegramKafkaStatusListener;
 
     public MockKafkaStreamRunner(TelegramToKafkaServiceConfigData configData,
                                  TelegramKafkaStatusListener statusListener) {
         this.telegramToKafkaServiceConfigData = configData;
-        this.twitterKafkaStatusListener = statusListener;
+        this.telegramKafkaStatusListener = statusListener;
     }
 
     @Override
@@ -78,17 +77,17 @@ public class MockKafkaStreamRunner implements StreamRunner {
         final int minTweetLength = telegramToKafkaServiceConfigData.getMockMinTweetLength();
         final int maxTweetLength = telegramToKafkaServiceConfigData.getMockMaxTweetLength();
         long sleepTimeMs = telegramToKafkaServiceConfigData.getMockSleepMs();
-        log.info("Starting mock filtering twitter streams for keywords {}", Arrays.toString(keywords));
-        simulateTwitterStream(keywords, minTweetLength, maxTweetLength, sleepTimeMs);
+        log.info("Starting mock filtering telegram streams for keywords {}", Arrays.toString(keywords));
+        simulateTelegramStream(keywords, minTweetLength, maxTweetLength, sleepTimeMs);
     }
 
     @SneakyThrows
-    private void simulateTwitterStream(String[] keywords, int minTweetLength, int maxTweetLength, long sleepTimeMs) {
+    private void simulateTelegramStream(String[] keywords, int minTweetLength, int maxTweetLength, long sleepTimeMs) {
         Executors.newSingleThreadExecutor().submit(() -> {
             while (true) {
                 String formattedTweetAsRawJson = getFormattedTweet(keywords, minTweetLength, maxTweetLength);
                 Status status = TwitterObjectFactory.createStatus(formattedTweetAsRawJson);
-                twitterKafkaStatusListener.onStatus(status);
+                telegramKafkaStatusListener.onStatus(status);
                 sleep(sleepTimeMs);
             }
         });
@@ -101,7 +100,7 @@ public class MockKafkaStreamRunner implements StreamRunner {
 
     private String getFormattedTweet(String[] keywords, int minTweetLength, int maxTweetLength) {
         String[] params = new String[]{
-                ZonedDateTime.now().format(DateTimeFormatter.ofPattern(TWITTER_STATUS_DATE_FORMAT, Locale.ENGLISH)),
+                ZonedDateTime.now().format(DateTimeFormatter.ofPattern(TELEGRAM_STATUS_DATE_FORMAT, Locale.ENGLISH)),
                 String.valueOf(ThreadLocalRandom.current().nextLong(Long.MAX_VALUE)),
                 getRandomTweetContent(keywords, minTweetLength, maxTweetLength),
                 String.valueOf(ThreadLocalRandom.current().nextLong(Long.MAX_VALUE))

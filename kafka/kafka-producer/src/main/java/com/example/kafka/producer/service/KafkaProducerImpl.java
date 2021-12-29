@@ -1,6 +1,6 @@
 package com.example.kafka.producer.service;
 
-import com.example.kafka.avro.model.TwitterAvroModel;
+import com.example.kafka.avro.model.TelegramAvroModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -14,12 +14,12 @@ import java.util.Locale;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class KafkaProducerImpl implements KafkaProducer<Long, TwitterAvroModel> {
+public class KafkaProducerImpl implements KafkaProducer<Long, TelegramAvroModel> {
 
-    private final KafkaTemplate<Long, TwitterAvroModel> kafkaTemplate;
+    private final KafkaTemplate<Long, TelegramAvroModel> kafkaTemplate;
 
     @Override
-    public void produce(String topicName, Long key, TwitterAvroModel message) {
+    public void produce(String topicName, Long key, TelegramAvroModel message) {
         kafkaTemplate
                 .send(topicName, key, message)
                 .addCallback(new ListenableFutureCallback<>() {
@@ -30,7 +30,7 @@ public class KafkaProducerImpl implements KafkaProducer<Long, TwitterAvroModel> 
                     }
 
                     @Override
-                    public void onSuccess(SendResult<Long, TwitterAvroModel> result) {
+                    public void onSuccess(SendResult<Long, TelegramAvroModel> result) {
                         RecordMetadata metadata = result.getRecordMetadata();
                         log.info("Received new metadata. Topic: {}; Partition {}; Offset {}; Timestamp {}, at time {}".toUpperCase(Locale.ROOT),
                                 metadata.topic(),

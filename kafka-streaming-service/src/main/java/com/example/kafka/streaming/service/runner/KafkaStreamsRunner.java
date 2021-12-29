@@ -2,20 +2,17 @@ package com.example.kafka.streaming.service.runner;
 
 import com.example.app.config.data.KafkaConfigData;
 import com.example.app.config.data.KafkaStreamsConfigData;
-import com.example.kafka.avro.model.TwitterAnalyticsAvroModel;
-import com.example.kafka.avro.model.TwitterAvroModel;
+import com.example.kafka.avro.model.TelegramAnalyticsAvroModel;
+import com.example.kafka.avro.model.TelegramAvroModel;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.*;
 import org.apache.kafka.streams.kstream.*;
-import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.QueryableStoreTypes;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -47,9 +44,9 @@ public class KafkaStreamsRunner {
 
         final StreamsBuilder streamsBuilder = new StreamsBuilder();
 
-        KStream<Long, TwitterAvroModel> twitterAvroModelKStream = getTwitterAvroModelKStream(serdeConfig, streamsBuilder);
+        KStream<Long, TelegramAvroModel> TelegramAvroModelKStream = getTelegramAvroModelKStream(serdeConfig, streamsBuilder);
 
-        createTopology(twitterAvroModelKStream, serdeConfig);
+        createTopology(TelegramAvroModelKStream, serdeConfig);
 
         startStreaming(streamsBuilder);
     }
@@ -78,12 +75,12 @@ public class KafkaStreamsRunner {
         log.info("Kafka streaming started..");
     }
 
-    private void createTopology(KStream<Long, TwitterAvroModel> twitterAvroModelKStream,
+    private void createTopology(KStream<Long, TelegramAvroModel> TelegramAvroModelKStream,
                                 Map<String, String> serdeConfig) {
         Pattern pattern = Pattern.compile(REGEX, Pattern.UNICODE_CHARACTER_CLASS);
-        Serde<TwitterAnalyticsAvroModel> serdeAnalyticsModel = getSerdeAnalyticsModel(serdeConfig);
+        Serde<TelegramAnalyticsAvroModel> serdeAnalyticsModel = getSerdeAnalyticsModel(serdeConfig);
 
-        twitterAvroModelKStream
+        TelegramAvroModelKStream
                 .flatMapValues(value -> Arrays.asList(pattern.split(value.getText().toLowerCase())))
                 .groupBy((key, value) -> value)
                 .count(Materialized.as(kafkaStreamsConfigData.getWordCountStoreName()))
@@ -95,12 +92,12 @@ public class KafkaStreamsRunner {
 
     }
 
-    private KeyValueMapper<String, Long, KeyValue<? extends String, ? extends TwitterAnalyticsAvroModel>>
+    private KeyValueMapper<String, Long, KeyValue<? extends String, ? extends TelegramAnalyticsAvroModel>>
     mapToAnalyticsModel() {
         return (word, count) -> {
             log.info("Sending to topic {}, word {} - count {}",
                     kafkaStreamsConfigData.getOutputTopicName(), word, count);
-            return new KeyValue<>(word, TwitterAnalyticsAvroModel
+            return new KeyValue<>(word, TelegramAnalyticsAvroModel
                     .newBuilder()
                     .setWord(word)
                     .setWordCount(count)
@@ -109,22 +106,22 @@ public class KafkaStreamsRunner {
         };
     }
 
-    private Serde<TwitterAnalyticsAvroModel> getSerdeAnalyticsModel(Map<String, String> serdeConfig) {
-        Serde<TwitterAnalyticsAvroModel> twitterAnalyticsAvroModel = new SpecificAvroSerde<>();
-        twitterAnalyticsAvroModel.configure(serdeConfig, false);
-        return twitterAnalyticsAvroModel;
+    private Serde<TelegramAnalyticsAvroModel> getSerdeAnalyticsModel(Map<String, String> serdeConfig) {
+        Serde<TelegramAnalyticsAvroModel> TelegramAnalyticsAvroModel = new SpecificAvroSerde<>();
+        TelegramAnalyticsAvroModel.configure(serdeConfig, false);
+        return TelegramAnalyticsAvroModel;
     }
 
-    private Serde<TwitterAvroModel> getSerdeModel(Map<String, String> serdeConfig) {
-        Serde<TwitterAvroModel> twitterAvroModel = new SpecificAvroSerde<>();
-        twitterAvroModel.configure(serdeConfig, false);
-        return twitterAvroModel;
+    private Serde<TelegramAvroModel> getSerdeModel(Map<String, String> serdeConfig) {
+        Serde<TelegramAvroModel> TelegramAvroModel = new SpecificAvroSerde<>();
+        TelegramAvroModel.configure(serdeConfig, false);
+        return TelegramAvroModel;
     }
 
-    private KStream<Long, TwitterAvroModel> getTwitterAvroModelKStream(Map<String, String> serdeConfig, StreamsBuilder streamsBuilder) {
-        Serde<TwitterAvroModel> serdeTwitterAvroModel = getSerdeModel(serdeConfig);
+    private KStream<Long, TelegramAvroModel> getTelegramAvroModelKStream(Map<String, String> serdeConfig, StreamsBuilder streamsBuilder) {
+        Serde<TelegramAvroModel> serdeTelegramAvroModel = getSerdeModel(serdeConfig);
         return streamsBuilder
-                .stream(kafkaStreamsConfigData.getInputTopicName(), Consumed.with(Serdes.Long(), serdeTwitterAvroModel));
+                .stream(kafkaStreamsConfigData.getInputTopicName(), Consumed.with(Serdes.Long(), serdeTelegramAvroModel));
     }
 
 }

@@ -88,6 +88,11 @@
             <groupId>com.example</groupId>
             <artifactId>elastic-query-client</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>mdc-interceptor</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

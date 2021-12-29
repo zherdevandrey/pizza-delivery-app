@@ -75,6 +75,10 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>mdc-interceptor</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

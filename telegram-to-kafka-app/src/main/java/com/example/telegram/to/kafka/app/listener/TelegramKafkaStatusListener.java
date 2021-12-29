@@ -1,7 +1,7 @@
 package com.example.telegram.to.kafka.app.listener;
 
 import com.example.app.config.data.KafkaConfigData;
-import com.example.kafka.avro.model.TwitterAvroModel;
+import com.example.kafka.avro.model.TelegramAvroModel;
 import com.example.kafka.producer.service.KafkaProducerImpl;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ public class TelegramKafkaStatusListener {
     private final KafkaConfigData kafkaConfigData;
 
     public void onStatus(Status status) {
-        TwitterAvroModel model = TwitterAvroModel
+        TelegramAvroModel model = TelegramAvroModel
                 .newBuilder()
                 .setId(status.getId())
                 .setUserId(status.getUser().getId())

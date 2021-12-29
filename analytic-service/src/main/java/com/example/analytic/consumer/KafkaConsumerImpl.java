@@ -5,7 +5,7 @@ import com.example.analytic.data.entity.AnalyticEntity;
 import com.example.analytic.mapper.AnalyticDataMapper;
 import com.example.app.config.data.KafkaConfigData;
 import com.example.kafka.admin.config.client.KafkaAdminClient;
-import com.example.kafka.avro.model.TwitterAnalyticsAvroModel;
+import com.example.kafka.avro.model.TelegramAnalyticsAvroModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class KafkaConsumerImpl implements KafkaConsumer<String, TwitterAnalyticsAvroModel>{
+public class KafkaConsumerImpl implements KafkaConsumer<String, TelegramAnalyticsAvroModel> {
 
     private final KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;
     private final KafkaAdminClient adminClient;
@@ -31,7 +31,7 @@ public class KafkaConsumerImpl implements KafkaConsumer<String, TwitterAnalytics
     private final AnalyticDataRepository analyticDataRepository;
 
     @EventListener
-    public void onStarted(ApplicationStartedEvent event){
+    public void onStarted(ApplicationStartedEvent event) {
         adminClient.checkTopicsCreated();
         log.info("Required topics created: {}", kafkaConfigData.getTopicNamesToCreate());
         kafkaListenerEndpointRegistry.getListenerContainer("kafkaAnalyticListener").start();
@@ -39,7 +39,7 @@ public class KafkaConsumerImpl implements KafkaConsumer<String, TwitterAnalytics
 
     @KafkaListener(id = "kafkaAnalyticListener", topics = "telegram-analytics-topic")
     @Override
-    public void receive(@Payload List<TwitterAnalyticsAvroModel> messages,
+    public void receive(@Payload List<TelegramAnalyticsAvroModel> messages,
                         @Header(KafkaHeaders.RECEIVED_MESSAGE_KEY) List<Integer> keys,
                         @Header(KafkaHeaders.RECEIVED_PARTITION_ID) List<Integer> partitions,
                         @Header(KafkaHeaders.OFFSET) List<Long> offsets) {

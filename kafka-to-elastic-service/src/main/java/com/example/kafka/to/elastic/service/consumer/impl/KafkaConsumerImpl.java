@@ -4,7 +4,7 @@ import com.example.app.config.data.KafkaConfigData;
 import com.example.elastic.model.impl.TelegramIndexModel;
 import com.example.index.service.ElasticIndexClient;
 import com.example.kafka.admin.config.client.KafkaAdminClient;
-import com.example.kafka.avro.model.TwitterAvroModel;
+import com.example.kafka.avro.model.TelegramAvroModel;
 import com.example.kafka.to.elastic.service.consumer.KafkaConsumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class KafkaConsumerImpl implements KafkaConsumer<Long, TwitterAvroModel> {
+public class KafkaConsumerImpl implements KafkaConsumer<Long, TelegramAvroModel> {
 
     private final KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;
     private final KafkaAdminClient kafkaAdminClient;
@@ -37,12 +37,12 @@ public class KafkaConsumerImpl implements KafkaConsumer<Long, TwitterAvroModel> 
     public void onAppStarted(ApplicationStartedEvent event) {
         kafkaAdminClient.checkTopicsCreated();
         log.info("Topics with name {} is ready for operations!", kafkaConfigData.getTopicNamesToCreate().toArray());
-        kafkaListenerEndpointRegistry.getListenerContainer("twitterTopicListener").start();
+        kafkaListenerEndpointRegistry.getListenerContainer("TelegramTopicListener").start();
     }
 
     @Override
-    @KafkaListener(id = "twitterTopicListener", topics = "telegram-topic")
-    public void receive(@Payload List<TwitterAvroModel> messages,
+    @KafkaListener(id = "TelegramTopicListener", topics = "telegram-topic")
+    public void receive(@Payload List<TelegramAvroModel> messages,
                         @Header(KafkaHeaders.RECEIVED_MESSAGE_KEY) List<Integer> keys,
                         @Header(KafkaHeaders.RECEIVED_PARTITION_ID) List<Integer> partitions,
                         @Header(KafkaHeaders.OFFSET) List<Long> offsets) {
@@ -62,17 +62,17 @@ public class KafkaConsumerImpl implements KafkaConsumer<Long, TwitterAvroModel> 
         elasticIndexClient.save(telegramIndexModels);
     }
 
-    private TelegramIndexModel mapTelegramModel(TwitterAvroModel twitterAvroModel){
+    private TelegramIndexModel mapTelegramModel(TelegramAvroModel TelegramAvroModel) {
 
-        LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(twitterAvroModel.getCreatedAt()),
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(TelegramAvroModel.getCreatedAt()),
                 ZoneId.systemDefault());
 
         return TelegramIndexModel
-                        .builder()
-                        .userId(twitterAvroModel.getUserId())
-                        .id(String.valueOf(twitterAvroModel.getId()))
-                        .text(twitterAvroModel.getText())
-                        .build();
+                .builder()
+                .userId(TelegramAvroModel.getUserId())
+                .id(String.valueOf(TelegramAvroModel.getId()))
+                .text(TelegramAvroModel.getText())
+                .build();
 
     }
 }

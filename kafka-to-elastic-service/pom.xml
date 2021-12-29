@@ -35,6 +35,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>io.confluent</groupId>
             <artifactId>kafka-avro-serializer</artifactId>
         </dependency>
@@ -63,7 +68,10 @@
             <artifactId>elastic-index-client</artifactId>
         </dependency>
 
-
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>mdc-interceptor</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

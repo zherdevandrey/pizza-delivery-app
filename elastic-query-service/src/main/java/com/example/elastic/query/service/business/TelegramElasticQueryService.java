@@ -9,6 +9,7 @@ import com.example.elastic.query.service.model.ElasticQueryServiceResponseModel;
 import com.example.elastic.query.service.model.ElasticQueryServiceWordCountResponseModel;
 import com.example.elastic.query.service.model.assembler.ElasticQueryServiceResponseModelAssembler;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.example.Constants.CORRELATION_ID_HEADER;
+import static com.example.Constants.CORRELATION_ID_KEY;
 import static com.example.elastic.query.service.QueryType.ANALYTICS_DATABASE;
 import static com.example.elastic.query.service.QueryType.KAFKA_STATE_STORE;
 
@@ -80,6 +83,7 @@ public class TelegramElasticQueryService implements ElasticQueryService {
                 .build()
                 .method(HttpMethod.valueOf(query.getMethod()))
                 .uri(query.getUri(), uriBuilder -> uriBuilder.build(text))
+                .header(CORRELATION_ID_HEADER, MDC.get(CORRELATION_ID_KEY))
                 .retrieve()
                 .bodyToMono(ElasticQueryServiceWordCountResponseModel.class)
                 .block();
